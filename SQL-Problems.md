@@ -45,8 +45,8 @@ INSERT INTO comments VALUES ('u3', 'page2', '100');
 ``` sql
 -- solution
 SELECT 
-	name,
-  COUNT(DISTINCT posts) as no_of_posts
+      name,
+      COUNT(DISTINCT posts) as no_of_posts
 FROM comments a
   -- This is to ensure that every user selected has comments >= 40 on each post(Nested sub-query)
   WHERE 40 <= ALL(SELECT comments FROM comments WHERE name = a.name) 
