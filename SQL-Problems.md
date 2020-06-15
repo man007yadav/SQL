@@ -80,11 +80,11 @@ CREATE TABLE article_views (
     author_id       int
 );
  
-INSERT INTO article_views VALUES ('2017-08-01',123,	456,789);
+INSERT INTO article_views VALUES ('2017-08-01',123,456,789);
 INSERT INTO article_views VALUES ('2017-08-02',432, 543,654);
-INSERT INTO article_views VALUES ('2017-08-01',789,	456,789);
-INSERT INTO article_views VALUES ('2017-08-03',567,	780,432);
-INSERT INTO article_views VALUES ('2017-08-01',789, 457,789);
+INSERT INTO article_views VALUES ('2017-08-01',789,456,789);
+INSERT INTO article_views VALUES ('2017-08-03',567,780,432);
+INSERT INTO article_views VALUES ('2017-08-01',789,457,789);
 ```
 
 #### How many article authors have never viewed their own article? 
