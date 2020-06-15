@@ -94,7 +94,7 @@ INSERT INTO article_views VALUES ('2017-08-01',789,457,789);
 -- solution
 SELECT
 	article_id,
-  author_id
+  	author_id
 FROM article_views av1
 	WHERE author_id NOT IN (SELECT viewer_id FROM article_views av2 WHERE av2.article_id = av1.article_id);
 ```
