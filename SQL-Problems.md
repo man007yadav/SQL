@@ -7,6 +7,9 @@
 - [Article Views](#article-views)
   - [How many article authors have never viewed their own article?](#how-many-article-authors-have-never-viewed-their-own-article)
   - [How many members viewed more than one articles on 2017-08-01](#how-many-members-viewed-more-than-one-articles-on-2017-08-01)
+- [Companies](#companies)
+  - [count members who ever moved from Microsoft to Google](#count-members-who-ever-moved-from-microsoft-to-google)
+  - [count members who directly moved from Microsoft to Google? \(Microsoft -- Linkedin -- Google doesn't count\)](#count-members-who-directly-moved-from-microsoft-to-google-microsoft----linkedin----google-doesnt-count)
 <!-- /MarkdownTOC -->
 
 
@@ -110,6 +113,71 @@ FROM article_views
 	WHERE DATE(date) = '2017-08-01'
 GROUP BY viewer_id
 HAVING COUNT(DISTINCT article_id) > 1
+```
+
+### Companies
+
+table
+member_id, company_name, year_start
+
+``` sql
+CREATE TABLE companies (
+    member_id            int,
+    company_name       varchar(80),
+    year_start      int
+);
+
+INSERT INTO companies VALUES (1,'Google', 1990);
+INSERT INTO companies VALUES (1,'Microsoft', 2000);
+INSERT INTO companies VALUES (2,'Microsoft', 2000);
+INSERT INTO companies VALUES (2,'Google', 2001);
+INSERT INTO companies VALUES (3,'Microsoft', 1997);
+INSERT INTO companies VALUES (3,'Google', 1998);
+INSERT INTO companies VALUES (4,'Microsoft', 1997);
+INSERT INTO companies VALUES (4,'LinkedIn', 1998);
+INSERT INTO companies VALUES (4,'Google', 2000);
+```
+
+#### count members who ever moved from Microsoft to Google
+
+``` sql
+SELECT
+    a.member_id,
+    a.company_name,
+    a.year_start,
+    b.company_name,
+    b.year_start
+FROM companies a, companies b
+	WHERE a.member_id = b.member_id
+	AND a.company_name = 'Microsoft'
+	AND b.company_name = 'Google'
+	AND a.year_start < b.year_start;
+```
+
+#### count members who directly moved from Microsoft to Google? (Microsoft -- Linkedin -- Google doesn't count)
+
+```sql
+SELECT
+    a.member_id,
+    a.company_name,
+    a.year_start,
+    b.company_name,
+    b.year_start
+FROM companies a, companies b
+	WHERE a.member_id = b.member_id
+	AND a.company_name = 'Microsoft'
+	AND b.company_name = 'Google'
+	AND a.year_start < b.year_start
+	AND a.member_id NOT IN ( SELECT a.member_id
+				FROM companies a, companies b, companies c
+				WHERE a.member_id = b.member_id
+                                AND a.member_id = c.member_id
+                                -- Making sure there is an intermediate company between a and b
+                                AND a.year_start < c.year_start
+                                AND c.year_start < b.year_start
+                                AND a.company_name = 'Microsoft'
+                                AND b.company_name = 'Google');
+
 ```
 
 
