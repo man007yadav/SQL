@@ -10,6 +10,9 @@
 - [Companies](#companies)
   - [count members who ever moved from Microsoft to Google](#count-members-who-ever-moved-from-microsoft-to-google)
   - [count members who directly moved from Microsoft to Google? \(Microsoft -- Linkedin -- Google doesn't count\)](#count-members-who-directly-moved-from-microsoft-to-google-microsoft----linkedin----google-doesnt-count)
+- [Continents](#continents)
+  - [find the country with largest population in each continent, with strictly output: continent, country, population.](#find-the-country-with-largest-population-in-each-continent-with-strictly-output-continent-country-population)
+  - [now for each continent, find the country with largest % of population in given continent. write SQL, then write Python.](#now-for-each-continent-find-the-country-with-largest-%-of-population-in-given-continent-write-sql-then-write-python)
 <!-- /MarkdownTOC -->
 
 
@@ -179,5 +182,66 @@ FROM companies a, companies b
                                 AND b.company_name = 'Google');
 
 ```
+
+### Continents
+
+a table with: continent, country, population
+
+``` sql
+CREATE TABLE continents (
+    continent          varchar(80),
+    country            varchar(80),
+    population         int
+);
+
+INSERT INTO continents VALUES ('Asia','China', 100);
+INSERT INTO continents VALUES ('Asia','India', 100);
+INSERT INTO continents VALUES ('Africa','South Africa', 50);
+INSERT INTO continents VALUES ('Africa','Egypt', 20);
+INSERT INTO continents VALUES ('North America','USA', 50);
+INSERT INTO continents VALUES ('North America','Canada', 50);
+```
+
+#### find the country with largest population in each continent, with strictly output: continent, country, population. 
+
+Consider corner case that two country have same largest population in the same continent
+
+```sql
+-- solution 1
+SELECT 
+	a.country,
+    	a.continent,
+    	a.population
+FROM continents a 
+	INNER JOIN (SELECT
+			country,
+		    -- RANK() gives same rank to clashing values and counts rest after their sum like 1,1,3..
+		    RANK() OVER(PARTITION BY continent ORDER BY population DESC) AS population_rank
+			FROM continents) b
+		    ON a.country = b.country
+			WHERE population_rank = 1;
+
+-- solution 2
+SELECT
+	a.continent,
+    	a.country,
+    	a.population
+FROM continents a
+	INNER JOIN (SELECT
+			continent,
+			MAX(population) AS max_population
+			FROM continents
+			GROUP BY continent) b
+	ON a.continent = b.continent
+    	AND a.population = b.max_population;
+```
+
+Note:
+
+    Window functions are permitted only in the SELECT list and the ORDER BY clause of the query. They are forbidden elsewhere, such as in GROUP BY, HAVING and WHERE clauses. This is because they logically execute after the processing of those clauses. Also, window functions execute after regular aggregate functions. This means it is valid to include an aggregate function call in the arguments of a window function, but not vice versa.
+
+
+
+
 
 
